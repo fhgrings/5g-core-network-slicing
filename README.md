@@ -6,7 +6,11 @@
 
 AWS Account **or** ProxMox Hypervisor
 
-For one-step deploy Linux is required
+For one-step deploy Linux is required Or
+
+Terraform;
+
+Ansible.
 
 ## Description
 
