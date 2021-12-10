@@ -1,0 +1,7 @@
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
+Dockerfile
+.dockerignore
+.git
+.gitignore

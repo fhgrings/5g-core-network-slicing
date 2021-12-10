@@ -1,0 +1,28 @@
+---
+- name: Add k8s apt key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Add k8s repository
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    update_cache: yes
+
+- name: Install k8s packages
+  apt:
+    name: "{{ item }}"
+  loop: "{{ k8s_packages }}"
+
+- name: Disable swap
+  command: swapoff -a
+
+- name: Ensure they can see bridge traffic
+  sysctl:
+    name: "{{ item }}"
+    value: '1'
+    state: present
+  with_items:
+  - net.bridge.bridge-nf-call-iptables
+  - net.bridge.bridge-nf-call-ip6tables

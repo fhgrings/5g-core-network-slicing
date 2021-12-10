@@ -1,0 +1,48 @@
+
+- name: Create Free5gc namespace
+  shell: kubectl create namespace free5gc
+  environment:
+    KUBECONFIG: "/etc/kubernetes/admin.conf"
+
+- name: Create free5gc vpc
+  shell: 'cat <<EOF | kubectl apply -f -
+    apiVersion: v1
+    kind: PersistentVolume
+    metadata:
+      name: free5gc-local-pv9
+      labels:
+        project: free5gc
+    spec:
+      capacity:
+        storage: 8Gi
+      accessModes:
+      - ReadWriteOnce
+      persistentVolumeReclaimPolicy: Retain
+      local:
+        path: /root/kubedata
+      nodeAffinity:
+        required:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+              - kube-node-1
+    EOF'
+  environment:
+    KUBECONFIG: "/etc/kubernetes/admin.conf"
+
+- name: Install Multus CNI
+  shell: curl https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/32c952e501b78d571dd709b86bcd5bc31b50681c/deployments/multus-daemonset-thick-plugin.yml | kubectl apply -f-
+  environment:
+    KUBECONFIG: "/etc/kubernetes/admin.conf"
+
+- name: Install Helm
+  shell: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+- name: Install Free5gc Helm Chart
+  shell: 
+    helm repo add towards5gs 'https://raw.githubusercontent.com/Orange-OpenSource/towards5gs-helm/main/repo/' &&
+    helm repo update &&
+    helm search repo &&
+    helm -n free5gc install free5gc-orange-v1 towards5gs/free5gc

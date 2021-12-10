@@ -1,0 +1,45 @@
+---
+kind: pipeline
+type: docker
+name: k8s-cluster
+
+steps:
+      
+- name: initialize aws plugin for terraform
+  image: mateusmuller2/ansibleandterraform:latest
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: aws_access
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: aws_secret
+  commands:
+  - terraform init
+  
+- name: create aws infra
+  image: mateusmuller2/ansibleandterraform:latest
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: aws_access
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: aws_secret
+  commands:
+  - terraform apply -auto-approve
+  
+- name: apply ansible playbook
+  image: mateusmuller2/ansibleandterraform:latest
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: aws_access
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: aws_secret
+    PRIVATE_KEY:
+      from_secret: private_key
+  commands:
+  - mkdir -p ~/.ssh/
+  - echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+  - unset PRIVATE_KEY
+  - chmod 600 ~/.ssh/id_rsa
+  - ansible-playbook -i ec2.py --limit "tag_name_k8s" -u ubuntu --ssh-common-args='-o StrictHostKeyChecking=no' --private-key ~/.ssh/id_rsa site.yml
+
+  
+

@@ -1,0 +1,1 @@
+ansible_ssh_private_key_file: "../terraform-prov-aws/K8S-DEMO-key.pem"

@@ -1,0 +1,25 @@
+- name: Destroy cluster before starting again
+  command: kubeadm reset -f
+  # iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+  # rm -r ~/.kube/
+
+- name: Initialize k8s cluster
+  command: 
+    kubeadm init --service-cidr {{ service_cidr }} \
+              --pod-network-cidr {{ pod_network_cidr }} \
+              --token {{ token }} \
+              --apiserver-advertise-address {{ master_ip }} \
+              {{ kubeadm_opts }} \
+              {{ init_opts }}
+            # --kubernetes-version {{ kube_version }} \
+  register: kubeadm_init_output
+
+- name: Install CNI pod
+  shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/f0f9b5262b993c4800726cb5d59f6da3b8a3dc4e/Documentation/kube-flannel.yml
+  environment:
+    KUBECONFIG: "/etc/kubernetes/admin.conf"
+
+- name: Install Ingress pod
+  shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/f0f9b5262b993c4800726cb5d59f6da3b8a3dc4e/Documentation/kube-flannel.yml
+  environment:
+    KUBECONFIG: "/etc/kubernetes/admin.conf"

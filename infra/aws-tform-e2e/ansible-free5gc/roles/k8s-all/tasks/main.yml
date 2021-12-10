@@ -1,0 +1,28 @@
+---
+- name: Install k8s packages
+  apt:
+    name: "{{ item }}"
+  loop: "{{ k8s_packages }}"
+
+- name: GTP5G checkout
+  tags: debug
+  ansible.builtin.git:
+    repo: 'https://github.com/free5gc/gtp5g.git'
+    dest: /root/gtp5g
+    version: v0.3.1
+
+# - name: Make GTP5G
+#   shell: cd /root/gtp5g && make && make install
+
+- name: Ensure interfaces eth1
+  ignore_errors: yes
+  shell: ip tuntap add dev eth1 mode tap
+  
+- name: Ensure interfaces eth1
+  ignore_errors: yes
+  shell: ip tuntap add dev eth1 mode tap
+
+- name: Create kubedata folder free5gc
+  file:
+    path: /root/kubedata
+    state: directory

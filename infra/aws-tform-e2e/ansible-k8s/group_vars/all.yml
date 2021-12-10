@@ -1,0 +1,10 @@
+kube_version: v1.22
+token: b0f7b8.8d1767876297d85c
+service_cidr: "10.96.0.0/12"
+pod_network_cidr: "10.244.0.0/16"
+init_opts: ""
+kubeadm_opts: ""
+
+master_ip: "{{ hostvars[groups['tag_Role_master'][0]]['ansible_default_ipv4'].address | default(groups['tag_Role_master'][0]) }}"
+
+ansible_ssh_private_key_file: "../terraform-prov-aws/K8S-DEMO-key.pem"
