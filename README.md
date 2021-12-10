@@ -10,7 +10,7 @@ For one-step deploy Linux is required
 
 ## Description
 
-This project is a easy to use infrastructure and monitoring implementation of the free5GC project. Running on AWS or Proxmox environment using Terraform and Ansible as IaC. This project focus on observability to visualize core communication and easy implement Network Slicing
+This project is an easy to use infrastructure and monitoring implementation of the free5GC project. Running on AWS or Proxmox environment using Terraform and Ansible as IaC. This project focus on observability to visualize core communication and implement Network Slicing in the future
 
 ## Architecture
 
@@ -103,7 +103,7 @@ It was possible to group all the requests made in the applications, but without 
 ![](./imgs/pinpoint-service-map.png)
 
 
-a
+
 
 
 ![](./imgs/pinpoint-tracing.png)
