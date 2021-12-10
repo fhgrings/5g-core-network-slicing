@@ -1,7 +1,7 @@
 
 # K8S Single Cluster spinup
-This is just a personal project willing to summarize some of the DevOps topics I've been studying in order to understand how they fit together.
-## What did I use?
+This is a project willing to summarize some of the DevOps topics.
+## Used Tools
 The main idea was to use as much tools as I could:
 
  - Docker
