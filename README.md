@@ -14,65 +14,91 @@ This project is a easy to use infrastructure and monitoring implementation of th
 
 ## Architecture
 
-Primeira arquitetura desenhada para solução do problema foi utilizando Proxmox e os principios de observabilidade do livro "Microsserviços prontos para produção" de XXX. A arquitetura se baseavaem 4 Maquinas virtuais carregadas com um cluster Kubernetes, sendo 1 master e 3 workers.
+High Level architecture is based in Proxmox Hypervisor (AWS compatible) using 4 virtual machines, 3 Kuberentes Worker and 1 Kubernetes Master. The projetct uses observability principles described on "Production-Ready Microsservices", by  O"Reilly. The project load metrics from hosts using Prometheus and send to grafana. The applications send tracing logs, and metrics via PinPoint Goland Agent to PinPoint APM. Jaeger was tested but the technology is not matture to easy-to-use on this project.
 
 ![](./imgs/proxmox-architecture.png)
 
 
 
-A segunda arquitetura - para aumentar a testabilidade do projeto pela comunidade - foi pensada utilizando algum recurso/provisionador público, assim escolhido a AWS. Para o provisionamento das maquinas virtuais foram configurados os acessos de rede e segurança  necessários para o deploy do mesmo. 
+The AWS architecture was designed to provide the entire AWS VPC and security resources. Terraform with AWS provider build the entire infrastructure that corresponds to:
 
-Utilizando terraform foi levantada uma Virtual Private Cloud, divida em duas Subnets (publica e privada), onde foram distribuidos os masters e workers do cluster kubernetes. Cada subnet recebeu 1 grupo de segurança com as mesmas definições (deixando as possibilidade de bloqueio de portas desnecessárias, mapeadas após o levantamento da infraestrutura). Para comunicação foram levantados 2 Roteradores, sendo o publico conectado ao gateway de acesso a internet, e outro apenas conectado ao NAT para comunicação interna com a internet, sem expor as máquinas desse grupo.
-
-
+* 1x Global VPC;
+* 2x Subnets (Public and Private)
+* 2 Routers (Public and Private)
+* 1 Gateway to expose public Router to internet
+* 1 NAT to private Subnet
+* 2 Security Groups with same configuration to implements in the future port restrictions.
 
 ![](./imgs/aws-architecture.png)
 
 
 
-O cluster Kubernetes é configurado por uma ansible playbook
+Kubernetes cluster is configured by Ansible Playbook. Follow free5GC Helm especifications.
+
+* GTP5G Kernel Module
+* Helm 3+
+* Simple CNI (Flannel)
+* Multus CNI
+* Free5GC Namespace
+* free5gc-local-pv
+* MongoDB
+
+After the entire Free5GC Helm especifications configuration the playbook add Prometheus, Nginx Ingress Controller, Fluend and run Helm Install.
 
 ![](./imgs/cluster-architecture.png)
 ![](./imgs/nsc-architecture.png)
 
 ## Installation and Getting Started
 
-Para rodar o projeto certifiquesse que está com as credenciais AWS configuradas em sua máquina.
+To run AWS configuration remember to add [AWS Credentials](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/getting-your-credentials.html)
+
+To install run the commands:
 
 ```bash
-git clone ...
-cd ...
+git clone https://github.com/fhgrings/5g-core-network-slicing.git
+cd 5g-core-network-slicing.git/infra/aws-tform-e2e
 ./run.sh
 ```
 
-Após a configuração rode
+After Installed enter on [AWS Console](https://us-east-2.console.aws.amazon.com/console/home) and connect to K8S-DEMO-EC2-MASTER-pub;
+
+Run the commands:
 
 ```bash
+export KUBECONFIG=/etc/kubernetes/adming.config
 kubectl get pods -A
 ```
 
 ![](./imgs/cluster.jpeg)
 
-a
+
+
+For a better cluster overview I recommend to install Lens IDE and connect to Kubernetes Cluster:
 
 
 ![](./imgs/cluster-map.jpeg)
 
 ### Monitoring
 
-PinPoint
-
-Elastic APM
-
-NewRelic
-
-OpenTelemtry
-
-Datadog
+- [x] **PinPoint**
+- [x] **Elastic APM**
+- [x] ~~NewRelic~~ (Not Working - Go Agent needs Go 1.17+)
+- [x] ~~OpenTelemtry~~ (No Agent for gin/gonic)
+- [x] ~~Datadog~~ (No Agent for gin/gonic)
 
 #### Why did not work?
 
-O projeto free5gc utiliza a biblioteca OpenAPI para padronizar e buildar o projeto baseado em arquivos de configuração Yaml. Todas as requisições importantes já estão listadas nesses arquivos de configuração, assim sendo criadas por uma camada de isolamento da ferramenta OpenAPI, sendo impossibildade a alteração, já que todas as requisições agora são feitas por pacotes. Go é uma linguagem de programação relativamente recente e sua observabilidade ainda não se algo popular. Muitos problemas e muita complexidade ainda é existente para o monitoramento dessas aplicações. O projeto free5gc ainda utiliza o Framework gin gonic que diminui ainda mais as possbilidades de ferramentas de monitoramento dado que não é um framework muito popular.
+Observability is based on instrumentation, hard coded or agents that implement by their own. It's necessary to change the HTTP call methods to log the inputs and outputs with monitoring headers. 
+
+Go does not natively accept sidecars to change compiled code, so changes need to be made inside the code. 
+
+Gin/gonic is not a widely used framework, so not all APM tools provide agents to monitor the requests
+
+To monitor a request you need to create a tracer between Request and Response, but the project uses OpenAPI. All important requests are already mapped by Yaml files and are compiled when running the tool, blocking access to the methods that perform the requests, making it necessary to change compiled packages to add the monitoring tools (Not possible for this scope). 
+
+As the scope of the project is limited to the slicing of the network and monitoring would be a plus to help understanding, it ends here the monitoring advances. 
+
+It was possible to group all the requests made in the applications, but without tracking the senders, only the receivers.
 
 ![](./imgs/pinpoint-service-map.png)
 
@@ -82,9 +108,19 @@ a
 
 ![](./imgs/pinpoint-tracing.png)
 
+Fonts:
+
+https://opentelemetry.io/docs/instrumentation/go/getting-started/
+
+https://github.com/pinpoint-apm/pinpoint-go-agent/tree/main/plugin/gin
+
+https://pkg.go.dev/net/http
+
+https://pkg.go.dev/golang.org/x/net/http2/h2c
+
+https://github.com/free5gc/amf/blob/e857bcd091ec69e66a2d390345fb4faf5c5d89e2/consumer/nf_mangement.go (Exemplo de classe: Nnrf_NFManagement)
 
 
-## Conclusion
 
 ## Fonts
 
@@ -93,3 +129,11 @@ https://github.com/pinpoint-apm/pinpoint-go-agent/tree/main/plugin/gin
 https://pkg.go.dev/net/http
 
 https://pkg.go.dev/golang.org/x/net/http2/h2c
+
+https://docs.aws.amazon.com/
+
+https://www.free5gc.org/
+
+https://github.com/ciromacedo/5GCore-easy-install
+
+https://github.com/Orange-OpenSource/towards5gs-helm
