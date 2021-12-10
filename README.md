@@ -92,7 +92,7 @@ For a better cluster overview I recommend to install Lens IDE and connect to Kub
 
 #### Why did not work?
 
-Observability is based on instrumentation, hard coded or agents that implement by their own. It's necessary to change the HTTP call methods to log the inputs and outputs with monitoring headers. 
+Observability is based on instrumentation, hard coded or agents. It's necessary to change the HTTP call methods to log the inputs and outputs with monitoring headers. 
 
 Go does not natively support sidecars to change compiled code, so changes need to be made inside the code and compiled. 
 
