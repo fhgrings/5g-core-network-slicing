@@ -38,3 +38,5 @@ POCs/ansible-k8s/cluster/
 POCs/ansible-k8s/cluster-pv/
 
 POCs/terraform-prov-aws/.terraform/
+
+POCs/
