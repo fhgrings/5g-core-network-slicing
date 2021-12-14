@@ -18,7 +18,7 @@ This project is an easy to use infrastructure and monitoring implementation of t
 
 ## Architecture
 
-High Level architecture is based in Proxmox Hypervisor (AWS compatible) using 4 virtual machines, 3 Kuberentes Worker and 1 Kubernetes Master. The projetct uses observability principles described on "Production-Ready Microsservices", by  O"Reilly. The project load metrics from hosts using Prometheus and send to grafana. The applications send tracing logs, and metrics via PinPoint Goland Agent to PinPoint APM. Jaeger was tested but the technology is not matture to easy-to-use on this project.
+High Level architecture is based in Proxmox Hypervisor (AWS compatible) using 3 virtual machines, 2 Kuberentes Worker and 1 Kubernetes Master. The projetct uses observability principles described on "Production-Ready Microsservices", by  O"Reilly. The project load metrics from hosts using Prometheus and send to grafana. The applications send tracing logs, and metrics via PinPoint Goland Agent to PinPoint APM. Jaeger was tested but the technology is not matture to easy-to-use on this project.
 
 ![](./imgs/proxmox-architecture.png)
 
@@ -26,12 +26,12 @@ High Level architecture is based in Proxmox Hypervisor (AWS compatible) using 4 
 
 The AWS architecture was designed to provide the entire AWS VPC and security resources. Terraform with AWS provider build the entire infrastructure that corresponds to:
 
-* 1x Global VPC;
-* 2x Subnets (Public and Private)
-* 2 Routers (Public and Private)
-* 1 Gateway to expose public Router to internet
-* 1 NAT to private Subnet
-* 2 Security Groups with same configuration to implements in the future port restrictions.
+* 1x Global VPC - Cloud network and security configurations;
+* 2x Subnets (Public and Private) - Separate Master and Nodes Public access;
+* 2x Routers (Public and Private) - Co ingress and outgress trafic;
+* 1x Gateway to expose public Router to internet;
+* 1x NAT to private Subnet;
+* 2x Security Groups with same configuration to implements in the future port restrictions.
 
 ![](./imgs/aws-architecture.png)
 
@@ -39,13 +39,13 @@ The AWS architecture was designed to provide the entire AWS VPC and security res
 
 Kubernetes cluster is configured by Ansible Playbook. Follow free5GC Helm especifications.
 
-* GTP5G Kernel Module
-* Helm 3+
-* Simple CNI (Flannel)
-* Multus CNI
-* Free5GC Namespace
-* free5gc-local-pv
-* MongoDB
+* GTP5G Kernel Module - For UPF tunneling communication;
+* Helm 3+ - For Free5GC Cluster Deploy;
+* Simple CNI (Flannel) - Main Cluster CNI;
+* Multus CNI - For UPF seccundary interface configuration;
+* Free5GC Namespace;
+* free5gc-local-pv - For Mongo Volume;
+* MongoDB.
 
 After configuring Free5GC Helm especifications the playbook add Prometheus, Nginx Ingress Controller, Fluend and run Helm Install.
 
