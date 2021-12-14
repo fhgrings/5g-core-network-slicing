@@ -50,6 +50,8 @@ Kubernetes cluster is configured by Ansible Playbook. Follow free5GC Helm especi
 After configuring Free5GC Helm especifications the playbook add Prometheus, Nginx Ingress Controller, Fluend and run Helm Install.
 
 ![](./imgs/cluster-architecture.png)
+
+### Network Slicing Controller Communications
 ![](./imgs/nsc-architecture.png)
 
 ## Installation and Getting Started
