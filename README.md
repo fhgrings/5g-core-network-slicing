@@ -2,6 +2,11 @@
 
 # 5G Core Network Slicing
 
+## Description
+
+This project is an easy to use infrastructure and monitoring implementation of the [free5GC](www.free5gc.org)+[free5gc-helm](https://github.com/Orange-OpenSource/towards5gs-helm) project. Running on AWS or Proxmox environment using Terraform and Ansible as IaC. This project focus on observability to visualize core communication and implement Network Slicing in the future
+
+
 ## Requirements
 
 AWS Account **or** ProxMox Hypervisor
@@ -12,9 +17,6 @@ Terraform;
 
 Ansible.
 
-## Description
-
-This project is an easy to use infrastructure and monitoring implementation of the free5GC project. Running on AWS or Proxmox environment using Terraform and Ansible as IaC. This project focus on observability to visualize core communication and implement Network Slicing in the future
 
 ## Architecture
 
