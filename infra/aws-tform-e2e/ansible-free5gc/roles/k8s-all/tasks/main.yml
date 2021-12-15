@@ -14,9 +14,9 @@
 # - name: Make GTP5G
 #   shell: cd /root/gtp5g && make && make install
 
-- name: Ensure interfaces eth1
+- name: Ensure interfaces eth0
   ignore_errors: yes
-  shell: ip tuntap add dev eth1 mode tap
+  shell: ip tuntap add dev eth0 mode tap
   
 - name: Ensure interfaces eth1
   ignore_errors: yes

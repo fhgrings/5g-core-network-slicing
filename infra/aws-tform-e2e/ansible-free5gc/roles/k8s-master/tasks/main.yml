@@ -1,34 +1,42 @@
+- name: Set workers_list
+  tags: debug
+  set_fact: 
+    worker_ip_list: "{{ groups['tag_Role_worker'] }}"
 
 - name: Create Free5gc namespace
   shell: kubectl create namespace free5gc
+  ignore_errors: yes
   environment:
     KUBECONFIG: "/etc/kubernetes/admin.conf"
 
-- name: Create free5gc vpc
-  shell: 'cat <<EOF | kubectl apply -f -
-    apiVersion: v1
-    kind: PersistentVolume
-    metadata:
-      name: free5gc-local-pv9
-      labels:
-        project: free5gc
-    spec:
-      capacity:
-        storage: 8Gi
-      accessModes:
-      - ReadWriteOnce
-      persistentVolumeReclaimPolicy: Retain
-      local:
-        path: /root/kubedata
-      nodeAffinity:
-        required:
-          nodeSelectorTerms:
-          - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-              - kube-node-1
-    EOF'
+- name: Create free5gc PVC 
+  tags: debug
+  shell: |
+      cat <<EOF | kubectl apply -f  -
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        name: free5gc-local-pv9
+        labels:
+          project: free5gc
+      spec:
+        capacity:
+          storage: 8Gi
+        accessModes:
+        - ReadWriteOnce
+        persistentVolumeReclaimPolicy: Retain
+        local:
+          path: /root/kubedata
+        nodeAffinity:
+          required:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                {% for ip in worker_ip_list -%}
+                - {{ hostvars[ip].ansible_hostname }} 
+                {% endfor %}
   environment:
     KUBECONFIG: "/etc/kubernetes/admin.conf"
 
@@ -46,3 +54,6 @@
     helm repo update &&
     helm search repo &&
     helm -n free5gc install free5gc-orange-v1 towards5gs/free5gc
+  environment:
+    KUBECONFIG: "/etc/kubernetes/admin.conf"
+

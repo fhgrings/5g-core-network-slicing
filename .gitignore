@@ -10,6 +10,9 @@
 
 terraform.tfstate
 terraform.tfstate.backup
+
+*.ini
+
 .terraform/
 join/
 
@@ -40,3 +43,5 @@ POCs/ansible-k8s/cluster-pv/
 POCs/terraform-prov-aws/.terraform/
 
 POCs/
+
+
